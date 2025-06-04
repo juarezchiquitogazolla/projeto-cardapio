@@ -8,44 +8,32 @@ async function fetchPratosApi() {
         const cardapio = await resposta.json();
         exibirResultado(cardapio);
     } catch (erro) {
-        console.log(erro)
-        const main = document.getElementsByTagName('main');
+        console.log(erro);
+        const main = document.querySelector('main');
         main.innerHTML = `<p>Erro: ${erro.message}</p>`;
     }
 }
 
-/*
-    bebida:"Suco de Laranja"
-    dia:"2025-06-02T00:00:00.000Z"
-id_prato:15
-id_usuario:5
-imagem:"https://www.gastronomia.com.br/wp-content/uploads/2024/01/comida-com-f-feijoada-falafel-fondue-e-muito-mais.jpg"
-principal:"Lasanha de Carne"
-sobremesa:"Pudim"
-turno:"Noturno"
-*/
-
 async function exibirResultado(cardapios) {
     const main = document.querySelector('main');
-    const h2= document.createElement('h2');
+    main.innerHTML = ''; // Limpa conteúdo anterior
+    const h2 = document.createElement('h2');
     h2.textContent = 'Cardápio do Dia';
     main.appendChild(h2);
-    const hoje = new Date();
-    //const hoje = '2025-06-02T05:28:01.124Z'
-    const diasDaSemana = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sabado-letivo'];
 
+    const hoje = new Date('2025-06-02T05:28:01.124Z');
+    const diasDaSemana = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+    const nomeDoDia = diasDaSemana[hoje.getDay()];
 
-    const prato = cardapios.find(t => (t.dia.slice(0, 10) == hoje.toISOString().slice(0, 10) ? t.turno : 'nao se aplica'));
+    const prato = cardapios.find(t => t.dia.slice(0, 10) === hoje.toISOString().slice(0, 10));
+
     if (prato) {
-        //const nomeDoDia = diasDaSemana[hoje.getDay()-2];
-        const nomeDoDia = diasDaSemana[hoje.getDay()]
         const section = document.createElement('section');
         const h3 = document.createElement('h3');
         h3.textContent = `${prato.turno} - ${prato.principal}`;
         h2.appendChild(h3);
 
         const ul = document.createElement('ul');
-
         const itens = [
             `Prato Principal: ${prato.principal}`,
             `Sobremesa: ${prato.sobremesa}`,
@@ -68,15 +56,14 @@ async function exibirResultado(cardapios) {
         section.appendChild(figure);
 
         main.appendChild(section);
-        console.log(`Hoje é ${nomeDoDia} e o cardápio é: ${pratosDoDia.principal}`);
-  
-        } else {
+        console.log(`Hoje é ${nomeDoDia} e o cardápio é: ${prato.principal}`);
+    } else {
         main.textContent = 'Hoje não temos cardápio disponível.';
     }
 }
 
-// Atualiza ao carregar
+// Inicial
 fetchPratosApi();
 
 // Atualiza a cada minuto
-setInterval(exibirResultados, 60000);
+setInterval(fetchPratosApi, 60000);
